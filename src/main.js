@@ -9,12 +9,17 @@ import mui from 'vue-awesome-mui'
 // 将API方法绑定到全局
 Vue.prototype.$api = api
 import utils from './utils/index.js'
+import store from './store/store'
+
+
 Vue.prototype.$utils=utils
 //引入Mint UI组件
 import Mint from 'mint-ui';
 import 'mint-ui/lib/style.css'
-Vue.use(Mint);
+import vuex from 'vuex'
 
+Vue.use(Mint);
+Vue.use(vuex)
 Vue.use(mui)
 
 Vue.config.productionTip = false
@@ -23,6 +28,7 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })

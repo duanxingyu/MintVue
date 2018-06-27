@@ -1,29 +1,26 @@
 <template>
   <div>
     <Header></Header>
-    <div class="article-list" v-for="i in list">
-      <!--<ul>
-          <li v-for="i in list">
-              <router-link :to="'/content/'+i.id">{{i.title}}</router-link>
-              <time v-text="$utils.goodTime(i.create_at)"></time>
+    <mt-loadmore :top-method="loadTop"  ref="loadmore" :bottom-method="loadBottom" :bottom-all-loaded="allLoaded"
+                 @top-status-change="handleTopChange" @bottom-status-change="handleBottomChange">
 
-          </li>
-      </ul>-->
-      <!--<mt-cell title="$api.get(i.title)">-->
-      <!--<mt-cell :title="i.title" :to="'/content/'+i.id" is-link >
-      </mt-cell>-->
-      <mt-cell :title="i.title" :to="'/content/'+i.id" is-link>
-        <span style="color: #ccc;font-size: 12px;" v-text="$utils.goodTime(i.create_at)"></span>
-        <img title="avatar" slot="icon" :src="i.author.avatar_url" width="30" height="30">
-      </mt-cell>
+      <div class="article-list" v-for="i in list">
+        <mt-cell :title="i.title" :to="'/content/'+i.id" is-link>
+          <span style="color: #ccc;font-size: 12px;" v-text="$utils.goodTime(i.create_at)"></span>
+          <img title="avatar" slot="icon" :src="i.author.avatar_url" width="30" height="30">
+        </mt-cell>
+      </div>
+      <div slot="top" class="mint-loadmore-top">
+        <span v-show="topStatus !== 'loading'" :class="{ 'rotate': topStatus === 'drop' }">{{topStatus}}</span>
+        <span v-show="topStatus === 'loading'">{{topStatus}}</span>
+      </div>
 
-      <!--<router-link :to="'/content/'+i.id">{{i.title}}</router-link>
+      <!--<div slot="bottom" class="mint-loadmore-bottom">-->
+        <!--<span v-show="bottomStatus !== 'loading'" :class="{ 'rotate': bottomStatus === 'drop' }">{{bottomStatus}}</span>-->
+        <!--<span v-show="bottomStatus === 'loading'">{{bottomStatus}}</span>-->
+      <!--</div>-->
 
-      <time v-text="$utils.goodTime(i.create_at)"></time>
-      <img slot="icon" src="" width="24" height="24">-->
-
-    </div>
-
+    </mt-loadmore>
     <Footer></Footer>
   </div>
 </template>
@@ -33,6 +30,7 @@
   import Footer from '../components/footer'
 
   export default {
+
     components: {
       Header,
       Footer
@@ -40,16 +38,54 @@
     //      这里是调用 cnodejs.org 的 topics 列表接口，并且将结果打印出来
     data() {
       return {
-        list: []
+        list: [],
+        topStatus: '',
+        bottomStatus:'',
+        limit: 15,
+        page: 10,
+        allLoaded: false,
       }
     },
     methods: {
       getData() {
-        this.$api.get('topics', null, r => {
+        this.$api.get('topics', {
+          page: this.page,
+          limit: this.limit,
+        }, r => {
           this.list = r.data
-          console.log(r.data)
+          console.log(r)
         })
 
+      },
+      loadTop() {
+        setTimeout(() => {
+          // 加载更多数据
+          this.limit += 10;
+          // this.page += 5;
+          this.getData();
+          this.$refs.loadmore.onTopLoaded();
+
+        }, 1000);
+
+      },
+      handleTopChange(status) {
+        this.topStatus = status;
+        if (this.topStatus === 'drop') {
+          this.topStatus = '松开立即刷新'
+        } else if (this.topStatus === 'pull') {
+          this.topStatus = '下拉即可刷新'
+        } else {
+          this.topStatus = '正在刷新中...'
+        }
+
+      },
+      handleBottomChange(status){
+
+      },
+      loadBottom() {
+      // 加载更多数据
+        this.allLoaded = true;// 若数据已全部获取完毕
+        this.$refs.loadmore.onBottomLoaded();
       }
     },
     created() {
