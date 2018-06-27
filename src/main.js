@@ -5,6 +5,7 @@ import App from './App'
 import router from './router'
 // 引用API文件
 import api from './api/index.js'
+import mui from 'vue-awesome-mui'
 // 将API方法绑定到全局
 Vue.prototype.$api = api
 import utils from './utils/index.js'
@@ -13,6 +14,8 @@ Vue.prototype.$utils=utils
 import Mint from 'mint-ui';
 import 'mint-ui/lib/style.css'
 Vue.use(Mint);
+
+Vue.use(mui)
 
 Vue.config.productionTip = false
 
